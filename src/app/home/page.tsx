@@ -12,7 +12,7 @@ export default function CalendarDashboard() {
   return (
     <>
       <div className="h-56 text-center pt-3.5">
-        This is my Calendar Dashboard
+        Calendar Dashboard
       </div>
       <div>
         <CalendarHeader month={month.toString()} year={year.toString()}/>

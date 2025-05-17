@@ -1,11 +1,14 @@
 'use client';
 
 import { useState } from "react";
+import { eachDayOfInterval, endOfMonth, format ,getDay,startOfMonth } from "date-fns";
 
 export default function CalendarHeader({ month, year } : { month: String; year : String}) {
 
     const [monthIndex, setMonthIndex] = useState(Number(month));
     const [yearIndex, setYearIndex] = useState(Number(year));
+
+    const week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
     const MonthlySwitchCase = () => {
         switch (monthIndex % 12) {
@@ -56,17 +59,56 @@ export default function CalendarHeader({ month, year } : { month: String; year :
         }
     }
 
+    const beginningOfMonth = startOfMonth(new Date(yearIndex, monthIndex));
+    const endOfMonthDate = endOfMonth(new Date(yearIndex, monthIndex));
+    
+    const daysInMonth = eachDayOfInterval({
+        start: beginningOfMonth,
+        end: endOfMonthDate
+    });
+
+    const startDay = getDay(beginningOfMonth);
+
   return (
     <>
-        <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full' onClick={dec_month}>
-            Back
-        </button>
-        <div className="h-10 w-40 text-center pt-3.5">
-            {MonthlySwitchCase()} {yearIndex}
+        <div className="h-16 flex items-center justify-center space-x-4">
+
+            <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full' onClick={dec_month}>
+                Back
+            </button>
+
+            <div className="min-w-[180px] text-center font-semibold text-lg">
+                {MonthlySwitchCase()} {yearIndex}
+            </div>
+
+            <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full' onClick={inc_month}>
+                Next 
+            </button>
+
         </div>
-        <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full' onClick={inc_month}>
-            Next 
-        </button>
+
+        <div className="container mx-auto p-4">
+            <div className="grid grid-cols-7 gap-5">
+                {week.map((day) => {
+                    return (
+                        <div key={day} className="font-bold text-center">
+                            {day} 
+                        </div>
+                    );
+                })}
+                {Array.from({ length: startDay }, (_, index) => (
+                    <div key={index} className="text-center border rounded-md h-16"></div>
+                ))}
+                {daysInMonth.map((day) => {
+                    return (
+                        <div key={day.toString()} className="text-center border rounded-md h-16 flex items-center justify-center">
+                            {format(day, "d")}
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+
     </>
   );    
 }
