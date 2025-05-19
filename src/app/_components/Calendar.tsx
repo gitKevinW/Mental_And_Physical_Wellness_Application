@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from "react";
-import { eachDayOfInterval, endOfMonth, format ,getDay,startOfMonth } from "date-fns";
+import { eachDayOfInterval, endOfMonth, format ,getDay,startOfMonth, isToday } from "date-fns";
+import clsx from "clsx";
 
 export default function CalendarHeader({ month, year } : { month: String; year : String}) {
 
@@ -101,7 +102,14 @@ export default function CalendarHeader({ month, year } : { month: String; year :
                 ))}
                 {daysInMonth.map((day) => {
                     return (
-                        <div key={day.toString()} className="text-center border rounded-md h-16 flex items-center justify-center">
+                        <div key={day.toString()} className={clsx("relative group bg-white text-center border rounded-md h-16 flex items-center justify-center", 
+                            {"bg-yellow-200": isToday(day)}
+                        )}>
+                            <div
+                                className="absolute inset-0 -z-10 rounded-md pointer-events-none
+                                        opacity-0 group-hover:opacity-60 group-hover:bg-blue-600 group-hover:blur-md
+                                        transition-all duration-200"
+                            />
                             {format(day, "d")}
                         </div>
                     );
