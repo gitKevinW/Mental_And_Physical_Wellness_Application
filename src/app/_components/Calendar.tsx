@@ -3,11 +3,15 @@
 import { useState } from "react";
 import { eachDayOfInterval, endOfMonth, format ,getDay,startOfMonth, isToday } from "date-fns";
 import clsx from "clsx";
+import CalendarModal from "./CalendarModal";
 
 export default function CalendarHeader({ month, year } : { month: String; year : String}) {
 
     const [monthIndex, setMonthIndex] = useState(Number(month));
     const [yearIndex, setYearIndex] = useState(Number(year));
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
     const week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
@@ -70,6 +74,13 @@ export default function CalendarHeader({ month, year } : { month: String; year :
 
     const startDay = getDay(beginningOfMonth);
 
+    const handleDateClick = (date: Date) => {
+        console.log("Clicked date:", format(date, "yyyy-MM-dd"));
+        setIsModalOpen(true);
+        console.log("Modal open:", isModalOpen);
+        setSelectedDate(date);
+    }
+
   return (
     <>
         <div className="h-16 flex items-center justify-center space-x-4">
@@ -102,20 +113,26 @@ export default function CalendarHeader({ month, year } : { month: String; year :
                 ))}
                 {daysInMonth.map((day) => {
                     return (
-                        <div key={day.toString()} className={clsx("relative group bg-white text-center border rounded-md h-16 flex items-center justify-center", 
-                            {"bg-yellow-200": isToday(day)}
-                        )}>
+                        <button key={day.toString()} className={clsx("relative group bg-white text-center border rounded-md h-16 flex items-center justify-center", 
+                            {"bg-yellow-200": isToday(day)} 
+                        )} onClick={() => handleDateClick(day)}
+                        >
                             <div
                                 className="absolute inset-0 -z-10 rounded-md pointer-events-none
                                         opacity-0 group-hover:opacity-60 group-hover:bg-blue-600 group-hover:blur-md
                                         transition-all duration-200"
                             />
                             {format(day, "d")}
-                        </div>
+                        </button>
                     );
                 })}
             </div>
         </div>
+        <CalendarModal
+            open={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            date={selectedDate}
+        />
 
     </>
   );    
