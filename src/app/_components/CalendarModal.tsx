@@ -1,4 +1,8 @@
+'use client';
+
 import { useState, FormEvent } from "react";
+import { db } from "../firebase";
+import { collection, addDoc } from "firebase/firestore";
 
 type CalendarModalProps = {
   open: boolean;
@@ -13,20 +17,38 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
 
   if (!open) return null;
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setInputs((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
   };
 
-  const handleSubmit = () => {
-    setInputs({});
-    onClose();
+  const handleSubmit = async () => {
+    if (!date) return;
+    try {
+      await addDoc(collection(db, "calendarEntries"), {
+        date: date.toISOString(),
+        rating: selectedRating,
+        sleep: inputs.sleep || "",
+        activity: inputs.activity || "",
+        diet: inputs.diet || "",
+        feeling: inputs.feeling || "",
+        grateful: inputs.grateful || "",
+        learning: inputs.learning || "",
+        createdAt: new Date().toISOString(),
+      });
+      setInputs({});
+      setSelectedRating(0);
+      onClose();
+    } catch (error) {
+      alert("Error saving entry: " + (error as Error).message);
+    }
   };
 
   const handleCancel = () => {
     setInputs({});
+    setSelectedRating(0);
     onClose();
   };
 
@@ -62,6 +84,9 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
           type="number"
           name="sleep"
           className="border p-2 w-full mb-2"
+          placeholder="Enter hours of sleep"
+          value={inputs.sleep || ""}
+          onChange={handleChange}
         />
 
         <h2 className="mb-4 text-gray-600">
@@ -72,6 +97,9 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
           type="number"
           name="activity"
           className="border p-2 w-full mb-2"
+          placeholder="Enter minutes of activity"
+          value={inputs.activity || ""}
+          onChange={handleChange}
         />
 
         <h2 className="mb-4 text-gray-600">
@@ -83,6 +111,8 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
           name="diet"
           className="border p-2 w-full mb-2"
           placeholder="Enter info"
+          value={inputs.diet || ""}
+          onChange={handleChange}
         />
 
         <h2 className="mb-4 text-gray-600">
@@ -96,7 +126,6 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
         value={inputs.feeling || ""}
         onChange={handleChange}
         placeholder="Enter info"
-        required
         />   
 
         <h2 className="mb-4 text-gray-600">
@@ -110,7 +139,6 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
         value={inputs.grateful || ""}
         onChange={handleChange}
         placeholder="Enter info"
-        required
         />
 
         <h2 className="mb-4 text-gray-600">
@@ -124,7 +152,6 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
         value={inputs.learning || ""}
         onChange={handleChange}
         placeholder="Enter info"
-        required
         />
 
         <div className="flex justify-end gap-2">
