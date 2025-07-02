@@ -32,7 +32,10 @@ export default async function StatsPage() {
               <th className="border px-2 py-1">Date</th>
               <th className="border px-2 py-1">Rating</th>
               <th className="border px-2 py-1">Sleep (hrs)</th>
-              <th className="border px-2 py-1">Activity (mins)</th>
+              <th className="border px-2 py-1">Walk (mins)</th>
+              <th className="border px-2 py-1">Run (mins)</th>
+              <th className="border px-2 py-1">Lift (mins)</th>
+              <th className="border px-2 py-1">Activity Points</th>
               <th className="border px-2 py-1">Diet</th>
               <th className="border px-2 py-1">Feeling</th>
               <th className="border px-2 py-1">Grateful</th>
@@ -45,7 +48,10 @@ export default async function StatsPage() {
                 <td className="border px-2 py-1">{new Date(entry.date).toLocaleDateString()}</td>
                 <td className="border px-2 py-1">{entry.rating}</td>
                 <td className="border px-2 py-1">{entry.sleep}</td>
-                <td className="border px-2 py-1">{entry.activity}</td>
+                <td className="border px-2 py-1">{entry.walk}</td>
+                <td className="border px-2 py-1">{entry.run}</td>
+                <td className="border px-2 py-1">{entry.lift}</td>
+                <td className="border px-2 py-1">{entry.activityPoints}</td>
                 <td className="border px-2 py-1">{entry.diet}</td>
                 <td className="border px-2 py-1">{entry.feeling}</td>
                 <td className="border px-2 py-1">{entry.grateful}</td>

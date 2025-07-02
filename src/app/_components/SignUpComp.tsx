@@ -62,14 +62,14 @@ export default function SignUpComp() {
         </label>
         {error && <div className="text-red-600 text-sm">{error}</div>}
         <div className="flex items-center justify-between mt-6">
-            <span className="text-blue-900 text-sm">Don't have an account?</span>
+            <span className="text-blue-900 text-sm">Already have an account?</span>
             <div className="flex gap-2">
             <Link href="/signup">
                 <button
                     type="button"
                     className="bg-blue-400 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-full"
                 >
-                Sign Up
+                Create Account
                 </button>
             </Link>
             <button

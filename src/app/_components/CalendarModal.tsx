@@ -3,6 +3,7 @@
 import { useState, FormEvent } from "react";
 import { db } from "../firebase";
 import { collection, addDoc } from "firebase/firestore";
+import { set } from "date-fns";
 
 type CalendarModalProps = {
   open: boolean;
@@ -14,6 +15,7 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
   const [inputs, setInputs] = useState<{ [key: string]: string }>({});
   const [selectedRating, setSelectedRating] = useState(0);
   const rating = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const [error, setError] = useState<string | null>(null);
 
   if (!open) return null;
 
@@ -26,12 +28,29 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
 
   const handleSubmit = async () => {
     if (!date) return;
+
+    // Forces user to select a rating
+    if (selectedRating === 0) {
+      setError("Please select a mood rating.");
+      return;
+    }
+    setError(null);
+
     try {
+      // Calculate activity points
+      const walking = parseInt(inputs.walking || "0", 10);
+      const running = parseInt(inputs.running || "0", 10);
+      const lifting = parseInt(inputs.lifting || "0", 10);
+      const activityPoints = (walking * 1) + (running * 2) + (lifting * 3);
+
       await addDoc(collection(db, "calendarEntries"), {
         date: date.toISOString(),
         rating: selectedRating,
         sleep: inputs.sleep || "",
-        activity: inputs.activity || "",
+        walk: inputs.walking || "",
+        run: inputs.running || "",
+        lift: inputs.lifting || "",
+        activityPoints: activityPoints,
         diet: inputs.diet || "",
         feeling: inputs.feeling || "",
         grateful: inputs.grateful || "",
@@ -61,8 +80,12 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
         </h1>
 
         <h2 className="mb-4 text-gray-600">
-            Happiness Rating:
+            Mood Rating:
         </h2>
+
+        {error && (
+          <div className="text-red-500 mb-2">{error}</div>
+        )}
 
         <div className="flex gap-2 mb-4">
           {rating.map((item) => (
@@ -87,6 +110,7 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
           placeholder="Enter hours of sleep"
           value={inputs.sleep || ""}
           onChange={handleChange}
+          required
         />
 
         <h2 className="mb-4 text-gray-600">
@@ -95,11 +119,30 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
 
         <input
           type="number"
-          name="activity"
+          name="walking"
           className="border p-2 w-full mb-2"
-          placeholder="Enter minutes of activity"
-          value={inputs.activity || ""}
+          placeholder="Enter minutes of walking"
+          value={inputs.walking || ""}
           onChange={handleChange}
+          required
+        />
+        <input
+          type="number"
+          name="running"
+          className="border p-2 w-full mb-2"
+          placeholder="Enter minutes of running or jogging"
+          value={inputs.running || ""}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="number"
+          name="lifting"
+          className="border p-2 w-full mb-2"
+          placeholder="Enter minutes of Weightlifting, Aerobics, etc..."
+          value={inputs.lifting || ""}
+          onChange={handleChange}
+          required
         />
 
         <h2 className="mb-4 text-gray-600">
@@ -113,6 +156,7 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
           placeholder="Enter info"
           value={inputs.diet || ""}
           onChange={handleChange}
+          required
         />
 
         <h2 className="mb-4 text-gray-600">
