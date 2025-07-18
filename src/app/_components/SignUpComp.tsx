@@ -32,8 +32,9 @@ export default function SignUpComp() {
 
     return (
     <div className="bg-blue-200 rounded-xl shadow-lg p-8 w-full max-w-md">
-        <h2 className="text-2xl font-bold text-blue-900 mb-6 text-left">Sign Up</h2>
-        <form className="flex flex-col gap-4">
+        <h2 className="text-2xl font-bold text-blue-900 text-left">Sign Up</h2>
+        <h2 className="text-1xl font-bold text-blue-900 mb-6 text-left">Welcome!</h2>
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <label className="text-blue-900 text-sm" htmlFor="email">
             Email
             <input
@@ -62,23 +63,18 @@ export default function SignUpComp() {
         </label>
         {error && <div className="text-red-600 text-sm">{error}</div>}
         <div className="flex items-center justify-between mt-6">
-            <span className="text-blue-900 text-sm">Already have an account?</span>
-            <div className="flex gap-2">
-            <Link href="/signup">
-                <button
-                    type="button"
-                    className="bg-blue-400 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-full"
-                >
-                Create Account
-                </button>
+            <Link href="../" className="text-blue-900 text-sm hover:underline">
+                Already have an account?
             </Link>
+            <div className="flex gap-2">
+
             <button
                 type="submit"
                 className="bg-blue-400 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-full"
                 disabled={loading}
-                onClick={handleSubmit}
+                // onClick={handleSubmit}
             >
-                {loading ? "Signing In..." : "Sign In"}
+                {loading ? "Building Your Account..." : "Create Account"}
             </button>
             </div>
         </div>

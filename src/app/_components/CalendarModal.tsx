@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useRef } from "react";
 import { db } from "../firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { set } from "date-fns";
@@ -15,7 +15,10 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
   const [inputs, setInputs] = useState<{ [key: string]: string }>({});
   const [selectedRating, setSelectedRating] = useState(0);
   const rating = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-  const [error, setError] = useState<string | null>(null);
+  const [ratingError, setRatingError] = useState<string | null>(null);
+  const [dietError, setDietError] = useState<string | null>(null);
+
+  // const topRef = useRef<HTMLDivElement>(null); // Reference to scroll to top
 
   if (!open) return null;
 
@@ -31,10 +34,22 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
 
     // Forces user to select a rating
     if (selectedRating === 0) {
-      setError("Please select a mood rating.");
+      setRatingError("Please select a mood rating.");
+      // topRef.current?.scrollIntoView({ behavior: "smooth" }); // Scroll to top if error
       return;
     }
-    setError(null);
+    setRatingError(null);
+
+    // Validates diet inputs to be within 0-100%
+    const carbs = parseInt(inputs.carbs || "0", 10);
+    const protein = parseInt(inputs.protein || "0", 10);
+    const produce = parseInt(inputs.produce || "0", 10);
+    if ( (carbs + protein + produce) != 100) {
+      setDietError("Please ensure the total of your diet percentages for the day adds up to 100%.");
+      // topRef.current?.scrollIntoView({ behavior: "smooth" }); // Scroll to top if error
+      return;
+    }
+    setDietError(null);
 
     try {
       // Calculate activity points
@@ -51,7 +66,9 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
         run: inputs.running || "",
         lift: inputs.lifting || "",
         activityPoints: activityPoints,
-        diet: inputs.diet || "",
+        carbohydrates: inputs.carbs || "",
+        protein: inputs.protein || "",
+        produce: inputs.produce || "",
         feeling: inputs.feeling || "",
         grateful: inputs.grateful || "",
         learning: inputs.learning || "",
@@ -73,6 +90,7 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
 
   return (
     <div onClick={handleCancel} className="fixed inset-0 backdrop-blur-[3px] bg-opacity-40 flex items-center justify-center z-50">
+      {/* <div ref={topRef} /> Reference for scrolling to top on error  */}
       <div onClick={e => e.stopPropagation()} className="bg-white p-6 rounded shadow-lg min-w-[600px] max-h-[80vh] overflow-y-auto">
         
         <h1 className="mb-2 font-bold text-lg">
@@ -80,11 +98,13 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
         </h1>
 
         <h2 className="mb-4 text-gray-600">
-            Mood Rating:
+          <b>Mood Rating: </b>
+          <br/>
+          How are you feeling today? (1-10)
         </h2>
 
-        {error && (
-          <div className="text-red-500 mb-2">{error}</div>
+        {ratingError && (
+          <div className="text-red-500 mb-2">{ratingError}</div>
         )}
 
         <div className="flex gap-2 mb-4">
@@ -100,7 +120,9 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
         </div>
 
         <h2 className="mb-4 text-gray-600">
-            Amount of sleep (hrs):
+          <b>Sleep: </b>
+          <br/>
+          How many hours did you sleep last night?
         </h2>
 
         <input
@@ -114,7 +136,9 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
         />
 
         <h2 className="mb-4 text-gray-600">
-            Amount of physical activities (mins):
+          <b>Exercise: </b>
+          <br/>
+          How many minutes did you spend on each activity today?
         </h2>
 
         <input
@@ -146,15 +170,41 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
         />
 
         <h2 className="mb-4 text-gray-600">
-            Diet:
+          <b>Diet: </b>
+          <br/>
+          What ratio of carbs, protein, and produce did you consume today? 
+          <br/>
+          Note: (In percentages, must add up to 100%)
         </h2>
 
+        {dietError && (
+          <div className="text-red-500 mb-2">{dietError}</div>
+        )}
+
         <input
-          type="text"
-          name="diet"
+          type="number"
+          name="carbs"
           className="border p-2 w-full mb-2"
-          placeholder="Enter info"
-          value={inputs.diet || ""}
+          placeholder="Ratio of carbs you consumed today"
+          value={inputs.carbs || ""}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="number"
+          name="protein"
+          className="border p-2 w-full mb-2"
+          placeholder="Ratio of protein you consumed today"
+          value={inputs.protein || ""}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="number"
+          name="produce"
+          className="border p-2 w-full mb-2"
+          placeholder="Ratio of fruits and vegetables you consumed today"
+          value={inputs.produce || ""}
           onChange={handleChange}
           required
         />
