@@ -106,6 +106,20 @@ export default function LineGraph({data}: LineGraphProps) {
     <div className="pt-8">
       {/* Grouped Toggle Buttons */}
       <div className="flex flex-wrap gap-2 justify-center mb-4">
+        {/* Toggle ALL ON */}
+        <button
+          onClick={() => setSelectedCategories([...DIET_KEYS, ...EXERCISE_KEYS, "mood", "sleep"])}
+          className="px-3 py-1 rounded border bg-green-500 text-white"
+        >
+          Show All
+        </button>
+        {/* Toggle ALL OFF */}
+        <button
+          onClick={() => setSelectedCategories([])}
+          className="px-3 py-1 rounded border bg-red-500 text-white"
+        >
+          Hide All
+        </button>
         <button
           onClick={() => toggleGroup("diet")}
           className={`px-3 py-1 rounded border ${DIET_KEYS.every(key => selectedCategories.includes(key)) ? "bg-blue-500 text-white" : "bg-gray-200"}`}
