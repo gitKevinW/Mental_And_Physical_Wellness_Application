@@ -91,7 +91,11 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
   return (
     <div onClick={handleCancel} className="fixed inset-0 backdrop-blur-[3px] bg-opacity-40 flex items-center justify-center z-50">
       {/* <div ref={topRef} /> Reference for scrolling to top on error  */}
-      <div onClick={e => e.stopPropagation()} className="bg-white p-6 rounded shadow-lg min-w-[600px] max-h-[80vh] overflow-y-auto">
+      <div
+        onClick={e => e.stopPropagation()}
+        className="p-6 rounded-2xl shadow-lg min-w-[600px] max-h-[80vh] overflow-y-auto" 
+        style={{ background: "#c2ced9" }}
+      >
         
         <h1 className="mb-2 font-bold text-lg">
           {date ? date.toDateString() : ""}
@@ -112,7 +116,7 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
             <button
               key={item}
               onClick={() => setSelectedRating(item)}
-              className={`px-4 py-2 rounded ${selectedRating === item ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+              className={`px-4 py-2 rounded ${selectedRating === item ? "bg-blue-400 text-white" : "bg-gray-200"}`}
             >
               {item}
             </button>

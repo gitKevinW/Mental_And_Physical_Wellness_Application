@@ -1,17 +1,30 @@
 'use client';
 
-import { useState } from "react";
-import { eachDayOfInterval, endOfMonth, format ,getDay,startOfMonth, isToday } from "date-fns";
+import { useState, useEffect } from "react";
+import { eachDayOfInterval, endOfMonth, format, getDay, startOfMonth, isToday } from "date-fns";
 import clsx from "clsx";
 import CalendarModal from "./CalendarModal";
+import { db } from "../firebase";
+import { collection, getDocs } from "firebase/firestore";
 
-export default function CalendarHeader({ month, year } : { month: String; year : String}) {
+export default function CalendarHeader({ month, year }: { month: String; year: String }) {
+  const [monthIndex, setMonthIndex] = useState(Number(month));
+  const [yearIndex, setYearIndex] = useState(Number(year));
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [entryDates, setEntryDates] = useState<string[]>([]);
 
-    const [monthIndex, setMonthIndex] = useState(Number(month));
-    const [yearIndex, setYearIndex] = useState(Number(year));
-
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  useEffect(() => {
+    async function fetchEntryDates() {
+      const snapshot = await getDocs(collection(db, "calendarEntries"));
+      const dates = snapshot.docs.map(doc => {
+        const entryDate = doc.data().date;
+        return entryDate ? new Date(entryDate).toLocaleDateString() : null;
+      }).filter(Boolean);
+      setEntryDates(dates as string[]);
+    }
+    fetchEntryDates();
+  }, [monthIndex, yearIndex]);
 
     const week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
@@ -100,33 +113,46 @@ export default function CalendarHeader({ month, year } : { month: String; year :
         </div>
 
         <div className="container mx-auto p-4">
-            <div className="grid grid-cols-7 gap-5">
-                {week.map((day) => {
-                    return (
-                        <div key={day} className="font-bold text-center">
-                            {day} 
-                        </div>
-                    );
-                })}
-                {Array.from({ length: startDay }, (_, index) => (
-                    <div key={index} className="text-center border rounded-md h-16"></div>
-                ))}
-                {daysInMonth.map((day) => {
-                    return (
-                        <button key={day.toString()} className={clsx("relative group bg-white text-center border rounded-md h-16 flex items-center justify-center", 
-                            {"bg-yellow-200": isToday(day)} 
-                        )} onClick={() => handleDateClick(day)}
-                        >
-                            <div
-                                className="absolute inset-0 -z-10 rounded-md pointer-events-none
-                                        opacity-0 group-hover:opacity-60 group-hover:bg-blue-600 group-hover:blur-md
-                                        transition-all duration-200"
-                            />
-                            {format(day, "d")}
-                        </button>
-                    );
-                })}
-            </div>
+          <div className="grid grid-cols-7 gap-5">
+            {week.map((day) => (
+              <div key={day} className="font-bold text-center">
+                {day}
+              </div>
+            ))}
+            {Array.from({ length: startDay }, (_, index) => (
+              <div key={index} className="text-center border rounded-md h-16"></div>
+            ))}
+            {daysInMonth.map((day) => {
+              const dateStr = format(day, "M/d/yyyy"); // Match toLocaleDateString format
+              const hasEntry = entryDates.includes(dateStr);
+              return (
+                <button
+                  key={day.toString()}
+                  className={clsx(
+                    "relative group bg-[#c2ced9] text-center border rounded-md h-16 flex items-center justify-center",
+                    { "bg-blue-300": isToday(day) }
+                  )}
+                  onClick={() => handleDateClick(day)}
+                >
+                  <div
+                    className="absolute inset-0 -z-10 rounded-md pointer-events-none
+          opacity-0 group-hover:opacity-60 group-hover:bg-blue-600 group-hover:blur-md
+          transition-all duration-200"
+                  />
+                  {format(day, "d")}
+                  {hasEntry && (
+                    <span className="absolute top-1 right-2 text-green-600 text-3xl font-extrabold">✓</span>
+                  )}
+                </button>
+              );
+            })}
+            {Array.from(
+              { length: 42 - (startDay + daysInMonth.length) },
+              (_, index) => (
+                <div key={`empty-end-${index}`} className="text-center border rounded-md h-16"></div>
+              )
+            )}
+          </div>
         </div>
         <CalendarModal
             open={isModalOpen}
