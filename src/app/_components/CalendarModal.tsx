@@ -8,10 +8,11 @@ import { set } from "date-fns";
 type CalendarModalProps = {
   open: boolean;
   date: Date | null;
-  onClose: () => void;  
+  onClose: () => void;
+  onSave?: () => void; 
 };  
 
-export default function CalendarModal({ open, date, onClose}: CalendarModalProps) {
+export default function CalendarModal({ open, date, onClose, onSave }: CalendarModalProps) {
   const [inputs, setInputs] = useState<{ [key: string]: string }>({});
   const [selectedRating, setSelectedRating] = useState(0);
   const rating = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -77,6 +78,7 @@ export default function CalendarModal({ open, date, onClose}: CalendarModalProps
       setInputs({});
       setSelectedRating(0);
       onClose();
+      if (onSave) onSave(); 
     } catch (error) {
       alert("Error saving entry: " + (error as Error).message);
     }

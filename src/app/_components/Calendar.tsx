@@ -14,15 +14,16 @@ export default function CalendarHeader({ month, year }: { month: String; year: S
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [entryDates, setEntryDates] = useState<string[]>([]);
 
+  const fetchEntryDates = async () => {
+    const snapshot = await getDocs(collection(db, "calendarEntries"));
+    const dates = snapshot.docs.map(doc => {
+      const entryDate = doc.data().date;
+      return entryDate ? new Date(entryDate).toLocaleDateString() : null;
+    }).filter(Boolean);
+    setEntryDates(dates as string[]);
+  };
+
   useEffect(() => {
-    async function fetchEntryDates() {
-      const snapshot = await getDocs(collection(db, "calendarEntries"));
-      const dates = snapshot.docs.map(doc => {
-        const entryDate = doc.data().date;
-        return entryDate ? new Date(entryDate).toLocaleDateString() : null;
-      }).filter(Boolean);
-      setEntryDates(dates as string[]);
-    }
     fetchEntryDates();
   }, [monthIndex, yearIndex]);
 
@@ -155,9 +156,10 @@ export default function CalendarHeader({ month, year }: { month: String; year: S
           </div>
         </div>
         <CalendarModal
-            open={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            date={selectedDate}
+          open={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          date={selectedDate}
+          onSave={fetchEntryDates}
         />
 
     </>
