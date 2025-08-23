@@ -1,7 +1,7 @@
 # Health & Habits Calendar Dashboard  
 
 A minimalistic web app for tracking daily health, habits, mood, sleep, diet, and exercise.  
-Built with **Next.js**, **Firebase**, and **Tailwind CSS**.  
+Built with **React.js**, **Next.js**, **Firebase**, and **Tailwind CSS**.  
 
 ---
 
